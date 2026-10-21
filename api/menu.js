@@ -1,8 +1,8 @@
 const { adminClient, send } = require('../lib/shared');
 
 // Endpoint PUBLIK (tanpa login) khusus untuk landing page.
-// Hanya mengirim data yang aman ditampilkan: nama, harga, dan apakah stok masih ada.
-// Jumlah stok asli dan data transaksi TIDAK pernah dikirim.
+// Hanya mengirim data yang aman ditampilkan: nama, harga, dan jumlah stok.
+// Data transaksi dan data staf TIDAK pernah dikirim.
 module.exports = async (req, res) => {
   if (req.method !== 'GET') return send(res, 405, { error: 'Method tidak diizinkan.' });
   try {
@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
     const products = (data || []).map((p) => ({
       name: p.name,
       price: p.price,
+      stock: p.stock,
       in_stock: p.stock > 0
     }));
     // Cache singkat di CDN Vercel supaya Supabase tidak dipanggil di setiap kunjungan.
