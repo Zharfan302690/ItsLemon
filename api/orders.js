@@ -45,15 +45,17 @@ async function createOrder(req, res) {
   return send(res, 201, { order: { id: data.id, code: String(data.id).slice(0, 8).toUpperCase(), total_amount: data.total_amount } });
 }
 
-// Staf: pesanan online 24 jam terakhir (transaksi yang catatannya berawalan [ONLINE]).
+// Staf: pesanan online (transaksi yang catatannya berawalan [ONLINE]). Default 24 jam terakhir; ?hours=1..720 untuk rentang lebih panjang.
 async function listOrders(req, res) {
   const result = await requireUser(req);
   if (result.error) return send(res, result.error.status, { error: result.error.message });
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const hours = Math.min(720, Math.max(1, parseInt(req.query && req.query.hours, 10) || 24));
+  const limit = hours > 24 ? 200 : 50;
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
   const { data, error } = await result.supabase.from('transactions')
     .select('id,total_amount,notes,created_at,transaction_items(product_name,quantity,unit_price)')
     .like('notes', ONLINE_PREFIX + '%').gte('created_at', since)
-    .order('created_at', { ascending: false }).limit(50);
+    .order('created_at', { ascending: false }).limit(limit);
   if (error) { console.error('[api/orders GET]', error); return send(res, 500, { error: 'Gagal mengambil pesanan.' }); }
   return send(res, 200, {
     orders: (data || []).map(t => ({
