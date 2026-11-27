@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pesan — It's Lemon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+:root{--green:#0f5b34;--yellow:#f6c635;--cream:#fff4d6;--ink:#253229;--muted:#69756c;--line:#eadfb8;--red:#a52b2b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif}
+a{color:inherit}
+.top{background:var(--green);color:var(--cream);padding:14px max(20px,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top .brand{font-family:Pacifico,cursive;font-size:28px;text-decoration:none;color:var(--yellow)}
+.top a.back{font-weight:800;text-decoration:none;font-size:15px}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 120px}
+h1{font-family:Pacifico,cursive;font-weight:400;font-size:clamp(34px,6vw,52px);line-height:1.15;margin:0 0 6px;color:var(--green)}
+.lead{margin:0 0 24px;font-weight:600;color:var(--ink);max-width:560px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.card{background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 22px rgba(120,80,0,.14);transition:outline-color .2s;outline:3px solid transparent}
+.card.flash{outline-color:var(--yellow)}
+.cup{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:28px;background:var(--tint,#fde27c)}
+.card h3{margin:4px 0 0;font-size:20px;font-weight:800;color:var(--green)}
+.price{font-weight:800;font-size:18px}
+.stock{font-size:13px;color:var(--muted);font-weight:600}
+.stock.low{color:var(--red)}
+.stepper{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.btn{border:0;border-radius:999px;font:800 16px Nunito,sans-serif;cursor:pointer;padding:12px 22px;background:var(--green);color:var(--cream);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:var(--cream);color:var(--green)}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:38px;height:38px;border-radius:50%;border:2px solid var(--green);background:#fff;color:var(--green);font:800 20px Nunito,sans-serif;cursor:pointer;line-height:1}
+.qty button:disabled{opacity:.35;cursor:not-allowed}
+.qty b{min-width:22px;text-align:center;font-size:18px}
+.panel{background:#fff;border-radius:28px;padding:24px;box-shadow:0 12px 30px rgba(120,80,0,.18);position:sticky;top:16px}
+.panel h2{margin:0 0 12px;font-size:24px;font-weight:800;color:var(--green)}
+.line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.line small{color:var(--muted);font-weight:600;display:block}
+.empty{color:var(--muted);font-weight:600;padding:14px 0}
+.total{display:flex;justify-content:space-between;font-size:22px;font-weight:800;padding:14px 0 6px}
+label{display:grid;gap:5px;font-weight:800;font-size:14px;margin-top:12px}
+label span.opt{font-weight:600;color:var(--muted)}
+input,textarea{width:100%;border:2px solid var(--line);border-radius:14px;padding:11px 13px;font:600 16px Nunito,sans-serif;color:var(--ink);background:#fff}
+input:focus,textarea:focus{outline:3px solid var(--yellow);outline-offset:0;border-color:var(--green)}
+textarea{resize:vertical;min-height:64px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.msg{min-height:22px;margin:10px 0 0;color:var(--red);font-weight:700;font-size:14px}
+.submit{width:100%;margin-top:10px;font-size:18px;padding:15px}
+.note{font-size:13px;color:var(--muted);font-weight:600;margin:10px 0 0}
+.bar{display:none}
+.success{background:#fff;border-radius:28px;padding:36px 28px;text-align:center;box-shadow:0 12px 30px rgba(120,80,0,.18);max-width:560px;margin:20px auto}
+.success .code{font-family:Pacifico,cursive;font-size:56px;color:var(--green);line-height:1.2;margin:6px 0}
+.success p{margin:8px 0;font-weight:600}
+.skeleton{color:var(--muted);font-weight:600;padding:20px 0}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;border-radius:28px 28px 0 0;max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease;z-index:30;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  .panel.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;display:none}
+  .scrim.open{display:block}
+  .bar{display:flex;position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:10;background:var(--green);color:var(--cream);border-radius:999px;padding:14px 22px;justify-content:space-between;align-items:center;font-weight:800;font-size:17px;border:0;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.3)}
+  .wrap{padding-bottom:110px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">It's Lemon</a>
+  <a class="back" href="/">← Kembali ke beranda</a>
+</header>
+
+<main class="wrap" id="main">
+  <h1>Pesan sekarang</h1>
+  <p class="lead">Pilih minumanmu, isi nama, lalu kirim. Kami siapkan, kamu tinggal ambil dan bayar di gerai.</p>
+
+  <div class="layout" id="shop">
+    <section>
+      <div class="menu" id="menu"><p class="skeleton">Memuat menu…</p></div>
+    </section>
+    <aside class="panel" id="panel" aria-label="Pesanan kamu">
+      <h2>Pesananmu</h2>
+      <div id="cart"><p class="empty">Belum ada minuman. Pilih dari menu.</p></div>
+      <div class="total"><span>Total</span><span id="total">Rp0</span></div>
+      <form id="form" novalidate>
+        <label>Nama
+          <input id="name" maxlength="60" autocomplete="name" placeholder="Nama kamu" required>
+        </label>
+        <label><span>WhatsApp / Instagram <span class="opt">(opsional)</span></span>
+          <input id="contact" maxlength="40" autocomplete="tel" placeholder="Supaya kami bisa menghubungi">
+        </label>
+        <label><span>Catatan <span class="opt">(opsional)</span></span>
+          <textarea id="notes" maxlength="300" placeholder="Contoh: es sedikit, ambil jam 3"></textarea>
+        </label>
+        <input class="hp" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="msg" id="msg" role="status"></p>
+        <button class="btn submit" id="submit" type="submit">Kirim pesanan</button>
+        <p class="note">Bayar saat ambil di gerai. Stok dicek ulang saat pesananmu diproses.</p>
+      </form>
+    </aside>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<button class="bar" id="bar" type="button"><span id="barCount">0 minuman</span><span id="barTotal">Lihat pesanan · Rp0</span></button>
+
+<script>
+(function(){
+  var menu=[], cart={}, busy=false;
+  var TINTS=['#fde27c','#a8def5','#d9b3e8','#ffb8b0','#e3c9a0','#d4e48a','#ffd9a0','#c9e6a8','#f6c635'];
+  var $=function(id){return document.getElementById(id)};
+  var rupiah=function(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0)};
+  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+  var norm=function(s){return String(s).toLowerCase().replace(/[^a-z0-9]/g,'')};
+  var MAX_QTY=20;
+
+  function save(){try{sessionStorage.setItem('lemon-cart',JSON.stringify(cart))}catch(e){}}
+  function load(){try{var v=JSON.parse(sessionStorage.getItem('lemon-cart')||'{}');if(v&&typeof v==='object')cart=v}catch(e){}}
+  function limit(p){return Math.min(MAX_QTY,p.stock)}
+
+  function renderMenu(){
+    if(!menu.length){$('menu').innerHTML='<p class="skeleton">Menu belum tersedia. Coba lagi nanti atau DM Instagram @itslemon.official.</p>';return}
+    $('menu').innerHTML=menu.map(function(p,i){
+      var q=cart[p.id]||0, out=p.stock<1;
+      return '<article class="card" id="c-'+p.id+'" style="--tint:'+TINTS[i%TINTS.length]+'">'
+        +'<div class="cup" aria-hidden="true">🍋</div>'
+        +'<h3>'+esc(p.name)+'</h3>'
+        +'<div class="price">'+rupiah(p.price)+'</div>'
+        +'<div class="stock'+(p.stock>0&&p.stock<=5?' low':'')+'">'+(out?'Habis':(p.stock<=5?'Sisa '+p.stock:'Tersedia'))+'</div>'
+        +'<div class="stepper">'+(q>0
+          ?'<div class="qty"><button type="button" data-act="dec" data-id="'+p.id+'" aria-label="Kurangi '+esc(p.name)+'">−</button><b>'+q+'</b><button type="button" data-act="inc" data-id="'+p.id+'" aria-label="Tambah '+esc(p.name)+'"'+(q>=limit(p)?' disabled':'')+'>+</button></div>'
+          :'<button class="btn" type="button" data-act="inc" data-id="'+p.id+'"'+(out?' disabled':'')+'>'+(out?'Habis':'Tambah')+'</button>')
+        +'</div></article>';
+    }).join('');
+  }
+
+  function renderCart(){
+    var ids=Object.keys(cart).filter(function(id){return cart[id]>0});
+    var total=0, count=0;
+    $('cart').innerHTML=ids.length?ids.map(function(id){
+      var p=menu.find(function(x){return x.id===id}); if(!p)return '';
+      var q=cart[id]; total+=p.price*q; count+=q;
+      return '<div class="line"><div><b>'+esc(p.name)+'</b><small>'+rupiah(p.price)+' × '+q+'</small></div><b>'+rupiah(p.price*q)+'</b></div>';
+    }).join(''):'<p class="empty">Belum ada minuman. Pilih dari menu.</p>';
+    $('total').textContent=rupiah(total);
+    $('barCount').textContent=count+' minuman';
+    $('barTotal').textContent='Lihat pesanan · '+rupiah(total);
+    $('submit').disabled=busy||count===0;
+    return count;
+  }
+
+  function sync(){
+    // buang item yang sudah tidak ada di menu / stoknya berkurang
+    Object.keys(cart).forEach(function(id){
+      var p=menu.find(function(x){return x.id===id});
+      if(!p||p.stock<1)delete cart[id]; else if(cart[id]>limit(p))cart[id]=limit(p);
+    });
+    save(); renderMenu(); renderCart();
+  }
+
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b)return;
+    var id=b.getAttribute('data-id'), p=menu.find(function(x){return x.id===id}); if(!p)return;
+    var q=cart[id]||0;
+    if(b.getAttribute('data-act')==='inc'){ if(q<limit(p))cart[id]=q+1; }
+    else { cart[id]=q-1; if(cart[id]<=0)delete cart[id]; }
+    $('msg').textContent='';
+    save(); renderMenu(); renderCart();
+  });
+
+  function openPanel(open){
+    $('panel').classList.toggle('open',open);
+    $('scrim').classList.toggle('open',open);
+  }
+  $('bar').addEventListener('click',function(){openPanel(true)});
+  $('scrim').addEventListener('click',function(){openPanel(false)});
+
+  function showSuccess(order){
+    cart={}; save();
+    $('main').innerHTML='<div class="success"><div style="font-size:48px">🍋</div><h1 style="font-size:36px">Pesanan terkirim!</h1>'
+      +'<p>Kode pesananmu</p><div class="code">'+esc(order.code)+'</div>'
+      +'<p>Total <b>'+rupiah(order.total_amount)+'</b>. Sebutkan kode ini di gerai, lalu bayar saat ambil.</p>'
+      +'<p style="color:#69756c">Simpan atau foto layar ini. Pesanan akan disiapkan oleh kasir kami.</p>'
+      +'<p style="margin-top:20px"><a class="btn" href="/pesan/">Pesan lagi</a> <a class="btn ghost" href="/">Ke beranda</a></p></div>';
+    openPanel(false); $('bar').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  $('form').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(busy)return;
+    var items=Object.keys(cart).filter(function(id){return cart[id]>0}).map(function(id){return {product_id:id,quantity:cart[id]}});
+    var name=$('name').value.trim();
+    if(!items.length){$('msg').textContent='Pilih minimal satu minuman.';return}
+    if(!name){$('msg').textContent='Isi namamu dulu ya.';$('name').focus();return}
+    busy=true; $('submit').disabled=true; $('submit').textContent='Mengirim…'; $('msg').textContent='';
+    fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      customer_name:name,customer_contact:$('contact').value,notes:$('notes').value,website:$('website').value,items:items
+    })}).then(function(r){return r.json().catch(function(){return {}}).then(function(d){return {ok:r.ok,d:d}})})
+    .then(function(res){
+      if(res.ok)return showSuccess(res.d.order);
+      $('msg').textContent=res.d.error||'Pesanan gagal dikirim. Coba lagi.';
+      return loadMenu();
+    }).catch(function(){$('msg').textContent='Tidak bisa terhubung. Periksa internetmu lalu coba lagi.'})
+    .then(function(){busy=false;if($('submit')){$('submit').textContent='Kirim pesanan';renderCart()}});
+  });
+
+  function loadMenu(){
+    return fetch('/api/menu').then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'x');return d})})
+      .then(function(d){menu=d.products||[];sync()})
+      .catch(function(){$('menu').innerHTML='<p class="skeleton">Menu gagal dimuat. Muat ulang halaman atau DM Instagram @itslemon.official.</p>'});
+  }
+
+  function preselect(){
+    var want=new URLSearchParams(location.search).get('item'); if(!want)return;
+    var w=norm(want);
+    var p=menu.find(function(x){return norm(x.name)===w})||menu.find(function(x){return norm(x.name).indexOf(w)>-1||w.indexOf(norm(x.name))>-1});
+    if(p&&p.stock>0&&!cart[p.id]){cart[p.id]=1;save();renderMenu();renderCart()}
+    if(p){var el=$('c-'+p.id);if(el){el.classList.add('flash');el.scrollIntoView({block:'center'});setTimeout(function(){el.classList.remove('flash')},1500)}}
+  }
+
+  load(); renderCart();
+  loadMenu().then(preselect);
+})();
+</script>
+</body>
+</html>
