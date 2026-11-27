@@ -209,7 +209,7 @@ textarea{resize:vertical;min-height:64px}
 
   function loadMenu(){
     return fetch('/api/menu').then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'x');return d})})
-      .then(function(d){menu=d.products||[];sync()})
+      .then(function(d){menu=(d.products||[]).filter(function(x){return x.id&&x.price>0});sync()})
       .catch(function(){$('menu').innerHTML='<p class="skeleton">Menu gagal dimuat. Muat ulang halaman atau DM Instagram @itslemon.official.</p>'});
   }
 

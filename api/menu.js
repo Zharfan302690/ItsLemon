@@ -1,16 +1,28 @@
-const { send, adminClient } = require('../lib/shared');
+const { adminClient, send } = require('../lib/shared');
 
-// Menu publik untuk halaman pemesanan pelanggan: hanya produk aktif yang sudah punya harga.
+// Endpoint PUBLIK (tanpa login) khusus untuk landing page.
+// Hanya mengirim data yang aman ditampilkan: nama, harga, dan jumlah stok.
+// Data transaksi dan data staf TIDAK pernah dikirim.
 module.exports = async (req, res) => {
   if (req.method !== 'GET') return send(res, 405, { error: 'Method tidak diizinkan.' });
   try {
-    const { data, error } = await adminClient().from('products')
-      .select('id,name,price,stock').eq('active', true).gt('price', 0).order('name');
-    if (error) return send(res, 500, { error: 'Gagal memuat menu.' });
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
-    return send(res, 200, { products: data || [] });
+    const { data, error } = await adminClient()
+      .from('products')
+      .select('id,name,price,stock,active')
+      .eq('active', true)
+      .order('name');
+    if (error) return send(res, 500, { error: 'Gagal mengambil menu.' });
+    const products = (data || []).map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      stock: p.stock,
+      in_stock: p.stock > 0
+    }));
+    // Cache singkat di CDN Vercel supaya Supabase tidak dipanggil di setiap kunjungan.
+    res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+    return send(res, 200, { products });
   } catch (e) {
-    console.error('[api/menu]', e);
-    return send(res, 500, { error: 'Menu belum bisa dimuat. Coba lagi sebentar lagi.' });
+    return send(res, 500, { error: 'Terjadi kesalahan server.' });
   }
 };

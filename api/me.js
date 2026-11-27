@@ -1,5 +1,5 @@
 
-const { send, requireUser } = require('../lib/shared');
+const { send, requireUser, ConfigError } = require('../lib/shared');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
@@ -25,6 +25,10 @@ module.exports = async (req, res) => {
   } catch (e) {
     // Catat detail untuk pemeriksaan di Vercel Logs.
     console.error('[api/me] Error:', e);
+
+    if (e instanceof ConfigError) {
+      return send(res, 500, { error: e.message });
+    }
 
     // Jangan tampilkan detail internal server kepada pengguna.
     return send(res, 500, {
