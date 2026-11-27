@@ -1,4 +1,4 @@
-const { send, requireUser } = require('../lib/shared');
+const { send, requireUser, parseOnlineNotes } = require('../lib/shared');
 
 const DAY = 24 * 60 * 60 * 1000;
 const WIB = '+07:00';
@@ -40,22 +40,15 @@ module.exports = async (req, res) => {
       (data || []).forEach(p => { cashiers[p.id] = p.full_name || ''; });
     }
 
-    const orders = {};
-    const txIds = transactions.map(t => t.id);
-    for (let i = 0; i < txIds.length; i += 200) {
-      const { data } = await supabase.from('orders').select('code,customer_name,transaction_id').in('transaction_id', txIds.slice(i, i + 200));
-      (data || []).forEach(o => { orders[o.transaction_id] = { code: o.code, customer_name: o.customer_name }; });
-    }
-
     return send(res, 200, {
       from, to,
       transactions: transactions.map(t => ({
         id: t.id,
         created_at: t.created_at,
         total_amount: t.total_amount,
-        notes: t.notes,
+        notes: parseOnlineNotes(t.notes) ? parseOnlineNotes(t.notes).note : t.notes,
         cashier: cashiers[t.cashier_id] || '',
-        order: orders[t.id] || null,
+        order: parseOnlineNotes(t.notes) ? { code: String(t.id).slice(0, 8).toUpperCase(), customer_name: parseOnlineNotes(t.notes).customer_name } : null,
         items: (t.transaction_items || []).map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price }))
       }))
     });
