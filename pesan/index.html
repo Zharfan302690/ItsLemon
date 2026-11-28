@@ -58,13 +58,28 @@ textarea{resize:vertical;min-height:64px}
 .skeleton{color:var(--muted);font-weight:600;padding:20px 0}
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
-  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;border-radius:28px 28px 0 0;max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease;z-index:30;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;border-radius:28px 28px 0 0;max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:30;padding-bottom:max(24px,env(safe-area-inset-bottom))}
   .panel.open{transform:none}
-  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;display:none}
-  .scrim.open{display:block}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s}
+  .scrim.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .25s ease,visibility 0s}
   .bar{display:flex;position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:10;background:var(--green);color:var(--cream);border-radius:999px;padding:14px 22px;justify-content:space-between;align-items:center;font-weight:800;font-size:17px;border:0;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.3)}
   .wrap{padding-bottom:110px}
 }
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.9)}60%{transform:scale(1.03)}100%{opacity:1;transform:none}}
+body{animation:fade .4s ease both}
+.top{animation:rise .45s ease both}
+h1,.lead{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}.lead{animation-delay:.07s}
+.card{animation:rise .45s cubic-bezier(.2,.8,.2,1) backwards;transition:outline-color .2s,transform .2s ease,box-shadow .2s ease}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(120,80,0,.2)}
+.menu .card:nth-child(2){animation-delay:.05s}.menu .card:nth-child(3){animation-delay:.1s}.menu .card:nth-child(4){animation-delay:.15s}.menu .card:nth-child(5){animation-delay:.2s}.menu .card:nth-child(n+6){animation-delay:.25s}
+.btn,.qty button{transition:transform .15s ease,box-shadow .15s ease,opacity .2s ease,background-color .2s ease}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,91,52,.25)}
+.btn:active:not(:disabled),.qty button:active:not(:disabled){transform:scale(.95)}
+.success{animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+.top a.back{transition:opacity .2s}.top a.back:hover{opacity:.75}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
