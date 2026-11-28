@@ -71,9 +71,10 @@ textarea{resize:vertical;min-height:64px}
 body{animation:fade .4s ease both}
 .top{animation:rise .45s ease both}
 h1,.lead{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}.lead{animation-delay:.07s}
-.card{animation:rise .45s cubic-bezier(.2,.8,.2,1) backwards;transition:outline-color .2s,transform .2s ease,box-shadow .2s ease}
+.menu.enter .card{animation:rise .45s cubic-bezier(.2,.8,.2,1) backwards}
+.card{transition:outline-color .2s,transform .2s ease,box-shadow .2s ease}
 .card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(120,80,0,.2)}
-.menu .card:nth-child(2){animation-delay:.05s}.menu .card:nth-child(3){animation-delay:.1s}.menu .card:nth-child(4){animation-delay:.15s}.menu .card:nth-child(5){animation-delay:.2s}.menu .card:nth-child(n+6){animation-delay:.25s}
+.menu.enter .card:nth-child(2){animation-delay:.05s}.menu.enter .card:nth-child(3){animation-delay:.1s}.menu.enter .card:nth-child(4){animation-delay:.15s}.menu.enter .card:nth-child(5){animation-delay:.2s}.menu.enter .card:nth-child(n+6){animation-delay:.25s}
 .btn,.qty button{transition:transform .15s ease,box-shadow .15s ease,opacity .2s ease,background-color .2s ease}
 .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,91,52,.25)}
 .btn:active:not(:disabled),.qty button:active:not(:disabled){transform:scale(.95)}
@@ -136,7 +137,10 @@ h1,.lead{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}.lead{animation-delay:
   function load(){try{var v=JSON.parse(sessionStorage.getItem('lemon-cart')||'{}');if(v&&typeof v==='object')cart=v}catch(e){}}
   function limit(p){return Math.min(MAX_QTY,p.stock)}
 
+  var entered=false;
   function renderMenu(){
+    // animasi masuk hanya pada render pertama; tambah/kurang jumlah tidak mengulang animasi
+    $('menu').classList.toggle('enter',!entered); if(menu.length)entered=true;
     if(!menu.length){$('menu').innerHTML='<p class="skeleton">Menu belum tersedia. Coba lagi nanti atau DM Instagram @itslemon.official.</p>';return}
     $('menu').innerHTML=menu.map(function(p,i){
       var q=cart[p.id]||0, out=p.stock<1;
