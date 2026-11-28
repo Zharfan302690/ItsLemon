@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const { supabase, user } = result;
     if (req.method === 'GET') {
       const { data, error } = await supabase.from('transactions')
-        .select('id,total_amount,notes,created_at,cashier_id')
+        .select('id,total_amount,notes,created_at,cashier_id,transaction_items(product_name,quantity,unit_price)')
         .order('created_at', { ascending: false }).limit(100);
       if (error) return send(res, 500, { error: 'Gagal mengambil riwayat transaksi.' });
       return send(res, 200, { transactions: data || [] });
